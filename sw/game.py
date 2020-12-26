@@ -1,16 +1,3 @@
-class Player(object):
-    neutral = None
-
-    def __init__(self):
-        self.name = ""
-        self.allies = []
-        self.at_war = []
-        self.fleets = []
-        self.worlds = []
-        self.score = []
-        self.env = {}
-
-
 class Population(object):
     default = None
 
@@ -100,11 +87,11 @@ class Fleet(object):
         self._artifacts = value
 
     @staticmethod
-    def make_fleets():
+    def make_fleets(count=256, **kwargs):
         fs = []
-        for i in range(1, 255):
-            fs.append(Fleet(location=i))
 
+        for i in range(0, count):
+            fs.append(Fleet(**kwargs))
         return fs
 
 
@@ -236,13 +223,92 @@ class World(object):
                             'metal': self._metal
                             })
 
-    def fleets(self, fleets):
+    def fleets_at_location(self, fleets):
         return [f for f in fleets if f.location == self.location]
 
     @staticmethod
-    def make_worlds(**kwargs):
+    def make_worlds(count=256, **kwargs):
         ws = []
 
-        for i in range(0, 256):
-            ws.append(World(location=i, onwer=Player.neutral, state="Idle"))
+        for i in range(0, count):
+            ws.append(World(**kwargs))
         return ws
+
+
+def make_home_world(owner, w: World):
+    w.owner = owner
+    w.population_limit = 20
+    w.population = 10
+    w.industry = 10
+    w.mines = 10
+    w.metal = 20
+
+
+def make_home_fleet(name, home, fs: [Fleet]):
+    for f in fs:
+        f.location = home
+        f.owner = name
+
+
+class Player(object):
+    neutral = None
+
+    def __init__(self, _game, **kwargs):
+        self.name = ""
+        self.home = 0
+        self.type = "Merchant"
+        self.allies = []
+        self.at_war = []
+        self.fleets = []
+        self.worlds = []
+        self.score = []
+        self.env = {}
+
+        for key, value in kwargs.items():
+            if "name" == key:
+                self.name = value
+            elif "home" == key:
+                self.home = value
+            elif "type" == key:
+                self.type = value
+            elif "allies" == key:
+                self.allies = value
+            elif "at_war" == key:
+                self.at_war = value
+            elif "fleets" == key:
+                self.fleets = value
+            elif "score" == key:
+                self.score = value
+            elif "env" == key:
+                self.env = value
+
+            make_home_world(self.name, _game["World"][self.home])
+            make_home_fleet(self.name, self.home, self.fleets)
+
+    @staticmethod
+    def make_players(_game):
+        return [
+            Player(_game, name="Neutral_1", home=1, type="Merchant", allies=None, at_war=False, fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_2", home=20, type="Merchant", allies=None, at_war=False, fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_3", home=40, type="Merchant", allies=None, at_war=False, fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_4", home=80, type="Merchant", allies=None, at_war=False, fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_5", home=100, type="Merchant", allies=None, at_war=False,
+                   fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_6", home=120, type="Merchant", allies=None, at_war=False,
+                   fleets=[1, 2, 3, 4, 5],
+                   score=0, env={}),
+            Player(_game, name="Neutral_7", home=140, type="Merchant", allies=None, at_war=False,
+                   fleets=[1, 2, 3, 4, 5],
+                   score=0, env={})
+        ]
+
+
+game = {"Worlds": World.make_worlds(),
+        "Fleets": Fleet.make_fleets()}
+
+game["Players"] = Player.make_players(game)
