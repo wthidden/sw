@@ -1,3 +1,6 @@
+import random
+
+
 class Population(object):
     default = None
 
@@ -95,6 +98,27 @@ class Fleet(object):
         return fs
 
 
+class Worlds(object):
+    pass
+
+
+def connect_world_to_world(w1, w2):
+    if len(w1.connections) >= 6:
+        return
+
+    if w1.location != w2.location:
+        w1.connections.add(w2.location)
+        w2.connections.add(w1.location)
+
+
+def connect_worlds(ws: [Worlds]):
+    for w in ws:
+        connections = random.randint(4, 5)
+        for i in range(1, connections):
+            connect_world_to_world(w, ws[random.randint(0, 255)])
+    pass
+
+
 class World(object):
     neutral = None
 
@@ -107,7 +131,7 @@ class World(object):
         self._industry = 0
         self._mines = 0
         self._metal = 0
-        self._connections = []
+        self._connections = set()
         self._artifacts = []
 
         for key, value in kwargs.items():
@@ -231,7 +255,11 @@ class World(object):
         ws = []
 
         for i in range(0, count):
+            kwargs["location"] = i
             ws.append(World(**kwargs))
+
+        connect_worlds(ws)
+
         return ws
 
 
