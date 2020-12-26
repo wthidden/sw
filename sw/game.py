@@ -13,7 +13,7 @@ class Fleet(object):
         self._owner = Player.neutral
         self._location = World.neutral
         self._state = {}
-        self._ships = {}
+        self._ships = 0
         self._cargo = 0
         self._artifacts = []
 
@@ -35,7 +35,7 @@ class Fleet(object):
         return "{}".format({'owner': self._owner,
                             'state': self._state,
                             'location': self._location,
-                            'fleets': self._ships,
+                            'ships': self._ships,
                             'artifacts': self._artifacts})
 
     @property
@@ -276,13 +276,13 @@ class Player(object):
             elif "at_war" == key:
                 self.at_war = value
             elif "fleets" == key:
-                self.fleets = value
+                self.fleets = [_game["Fleets"][i] for i in value]
             elif "score" == key:
                 self.score = value
             elif "env" == key:
                 self.env = value
 
-            make_home_world(self.name, _game["World"][self.home])
+            make_home_world(self.name, _game["Worlds"][self.home])
             make_home_fleet(self.name, self.home, self.fleets)
 
     @staticmethod
